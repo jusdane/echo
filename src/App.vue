@@ -1,0 +1,1 @@
+<template><div class='app'><nav style='padding:10px;border-bottom:1px solid #eee;display:flex;gap:12px;'><router-link to='/'>Studio</router-link><router-link to='/patch'>Patch</router-link></nav><router-view/></div></template><script setup lang='ts'></script>
