@@ -201,57 +201,35 @@ function updateGainParams(id: string, gain: number) {
 }); onUnmounted(()=>{ canvas.value?.removeEventListener('mousedown',onDown); canvas.value?.removeEventListener('mousemove',onMove); window.removeEventListener('mouseup',onUp); window.removeEventListener('keydown',onKey); }); const addOsc=()=>addModule('osc'); const addFilter=()=>addModule('filter'); const addGain = () => addModule('gain');
 
 const createBasicChain = () => {
-  console.log('🎵 createBasicChain: Starting...');
-  
   // Clear existing modules
   clearAll();
   
   // Add a basic audio chain: Osc -> Filter -> Gain -> Out
-  console.log('🎵 createBasicChain: Adding oscillator...');
   const oscId = addModule('osc');
-  console.log('🎵 createBasicChain: Oscillator ID:', oscId);
-  
-  console.log('🎵 createBasicChain: Adding filter...');
   const filterId = addModule('filter');
-  console.log('🎵 createBasicChain: Filter ID:', filterId);
-  
-  console.log('🎵 createBasicChain: Adding gain...');
   const gainId = addModule('gain');
-  console.log('🎵 createBasicChain: Gain ID:', gainId);
   
   // Set default parameters
-  console.log('🎵 createBasicChain: Setting parameters...');
   updateModuleParams(oscId, { freq: 220, wave: 'saw' });
   updateModuleParams(filterId, { cutoff: 1200, q: 0.8, type: 'lowpass' });
   updateModuleParams(gainId, { gain: 0.5 });
   
   // Connect the chain
-  console.log('🎵 createBasicChain: Connecting modules...');
   connectModules(oscId, filterId);
   connectModules(filterId, gainId);
   
   // Start audio context
-  console.log('🎵 createBasicChain: Starting audio...');
   startAudio();
   
   // Force a rebuild to ensure connections
-  console.log('🎵 createBasicChain: Forcing rebuild...');
   setTimeout(() => {
-    console.log('🎵 createBasicChain: Final state check');
-    console.log('🎵 createBasicChain: Modules:', Object.keys(state.modules));
-    console.log('🎵 createBasicChain: Cables:', state.cables);
-    console.log('🎵 createBasicChain: Should hear a tone now!');
+    // Final state check
   }, 100);
-  
-  console.log('🎵 Basic audio chain created!');
 };
 
 const testTone = () => {
   // Create a simple test tone to verify audio is working
   const project = useProjectStore();
-  console.log('🔊 testTone: Project store:', !!project);
-  console.log('🔊 testTone: Audio context:', !!project?.audioCtx);
-  console.log('🔊 testTone: Audio context state:', project?.audioCtx?.state);
   
   try {
     const osc = project.audioCtx.createOscillator();
@@ -265,76 +243,56 @@ const testTone = () => {
     gain.connect(project.audioCtx.destination);
     
     osc.start();
-    console.log('✅ testTone: Test tone started');
     
     setTimeout(() => {
       osc.stop();
       osc.disconnect();
       gain.disconnect();
-      console.log('✅ testTone: Test tone completed');
     }, 1000);
     
-    console.log('🔊 Test tone played!');
+    // Test tone played successfully
   } catch (error) {
-    console.error('❌ testTone: Failed to play test tone:', error);
+    console.error('testTone: Failed to play test tone:', error);
   }
 };
 
 const debugAudio = () => {
-  console.log('🔍 === AUDIO DEBUG INFO ===');
-  console.log('🔍 Project store available:', !!useProjectStore());
-  console.log('🔍 Audio context state:', useProjectStore()?.audioCtx?.state);
-  console.log('🔍 Sample rate:', useProjectStore()?.audioCtx?.sampleRate);
-  console.log('🔍 Current modules:', Object.keys(state.modules));
-  console.log('🔍 Cables:', state.cables);
-  console.log('🔍 Output gain node:', !!getAudioOut());
-  console.log('🔍 === END DEBUG INFO ===');
+  console.log('=== AUDIO DEBUG INFO ===');
+  console.log('Project store available:', !!useProjectStore());
+  console.log('Audio context state:', useProjectStore()?.audioCtx?.state);
+  console.log('Sample rate:', useProjectStore()?.audioCtx?.sampleRate);
+  console.log('Current modules:', Object.keys(state.modules));
+  console.log('Cables:', state.cables);
+  console.log('Output gain node:', !!getAudioOut());
+  console.log('=== END DEBUG INFO ===');
 };
 
 const testSimpleOsc = () => {
-  console.log('🎵 testSimpleOsc: Testing simple oscillator (FIXED VERSION - REFRESHED)...');
-  
-  // Don't clear everything - just start fresh
-  console.log('🎵 testSimpleOsc: Starting fresh test (no clearAll)...');
-
   // Add just an oscillator
   const oscId = addModule('osc');
-  console.log('🎵 testSimpleOsc: Oscillator created with ID:', oscId);
 
   // Set parameters
   updateModuleParams(oscId, { freq: 440, wave: 'sine' });
   
-  // Connect directly to output
+  // Connect to output
   connectModules(oscId, 'out');
   
   // Start audio
   startAudio();
-  
-  console.log('🎵 testSimpleOsc: Should hear 440Hz tone now!');
 
-  // Test parameter updates (simplified)
+  // Test parameter updates
   setTimeout(() => {
-    console.log('🎵 testSimpleOsc: Testing frequency change...');
     updateModuleParams(oscId, { freq: 880 }); // Should change to 880Hz
   }, 1000);
   
   setTimeout(() => {
-    console.log('🎵 testSimpleOsc: Testing wave change...');
     updateModuleParams(oscId, { wave: 'square' }); // Should change to square wave
   }, 2000);
-  
-  // Simple completion message
-  setTimeout(() => {
-    console.log('🎵 testSimpleOsc: Test complete - did you hear audio?');
-  }, 3000);
 };
 
 const testDirectAudio = () => {
-  console.log('🎵 testDirectAudio: Testing direct Web Audio API (bypassing patch system)...');
-  
   const project = useProjectStore();
   if (!project?.audioCtx) {
-    console.error('❌ No audio context available');
     return;
   }
   
@@ -350,38 +308,30 @@ const testDirectAudio = () => {
   gain.connect(project.audioCtx.destination);
   
   osc.start();
-  console.log('🎵 testDirectAudio: Direct oscillator started - should hear 440Hz tone');
-  
+
   // Test frequency changes
   setTimeout(() => {
     osc.frequency.setValueAtTime(880, project.audioCtx.currentTime);
-    console.log('🎵 testDirectAudio: Frequency changed to 880Hz');
   }, 1000);
   
   setTimeout(() => {
     osc.frequency.setValueAtTime(220, project.audioCtx.currentTime);
-    console.log('🎵 testDirectAudio: Frequency changed to 220Hz');
   }, 2000);
   
   // Keep running for 5 seconds
   setTimeout(() => {
     osc.stop();
-    console.log('🎵 testDirectAudio: Test complete');
   }, 5000);
 };
 
 const testOscillatorLifecycle = () => {
-  console.log('🎵 testOscillatorLifecycle: Testing oscillator creation and lifecycle...');
-  
   const project = useProjectStore();
   if (!project?.audioCtx) {
-    console.error('❌ No audio context available');
     return;
   }
   
   // Create oscillator through the patch system
   const oscId = addModule('osc');
-  console.log('🎵 testOscillatorLifecycle: Oscillator created with ID:', oscId);
   
   // Set parameters
   updateModuleParams(oscId, { freq: 440, wave: 'sine' });
@@ -398,77 +348,51 @@ const testOscillatorLifecycle = () => {
     if (runtime && runtime.has(oscId)) {
       const rt = runtime.get(oscId);
       if (rt && rt.node) {
-        console.log('🔍 testOscillatorLifecycle: Oscillator running, node exists');
-      } else {
-        console.log('⚠️ testOscillatorLifecycle: Runtime exists but no node!');
+        // Oscillator running, node exists
       }
-    } else {
-      console.log('⚠️ testOscillatorLifecycle: No runtime found!');
     }
   }, 200);
   
   // Stop monitoring after 3 seconds
   setTimeout(() => {
     clearInterval(monitorInterval);
-    console.log('🔍 testOscillatorLifecycle: Monitoring stopped');
   }, 3000);
-  
-  console.log('🎵 testOscillatorLifecycle: Should hear 440Hz tone for 3 seconds');
 };
 
 const testOscillatorPersistence = () => {
-  console.log('🎵 testOscillatorPersistence: Testing if oscillator persists in runtime...');
-  
   // Clear everything first
   clearAll();
   
   // Create oscillator
   const oscId = addModule('osc');
-  console.log('🎵 testOscillatorPersistence: Oscillator created with ID:', oscId);
   
   // Check if it's in runtime immediately
   const { runtime } = usePatch();
-  console.log('🎵 testOscillatorPersistence: Runtime size after creation:', runtime.size);
-  console.log('🎵 testOscillatorPersistence: Has our oscillator?', runtime.has(oscId));
   
   if (runtime.has(oscId)) {
     const rt = runtime.get(oscId);
-    console.log('🎵 testOscillatorPersistence: Runtime module:', rt?.id, 'node:', !!rt?.node);
+    // Runtime module exists
   }
   
   // Wait 1 second and check again
   setTimeout(() => {
-    console.log('🎵 testOscillatorPersistence: After 1 second...');
-    console.log('🎵 testOscillatorPersistence: Runtime size:', runtime.size);
-    console.log('🎵 testOscillatorPersistence: Has our oscillator?', runtime.has(oscId));
-    
     if (runtime.has(oscId)) {
       const rt = runtime.get(oscId);
-      console.log('🎵 testOscillatorPersistence: Runtime module still exists:', rt?.id, 'node:', !!rt?.node);
-    } else {
-      console.log('⚠️ testOscillatorPersistence: Oscillator disappeared from runtime!');
+      // Runtime module still exists
     }
   }, 1000);
   
   // Wait 2 seconds and check again
   setTimeout(() => {
-    console.log('🎵 testOscillatorPersistence: After 2 seconds...');
-    console.log('🎵 testOscillatorPersistence: Runtime size:', runtime.size);
-    console.log('🎵 testOscillatorPersistence: Has our oscillator?', runtime.has(oscId));
-    
     if (runtime.has(oscId)) {
       const rt = runtime.get(oscId);
-      console.log('🎵 testOscillatorPersistence: Runtime module still exists:', rt?.id, 'node:', !!rt?.node);
-    } else {
-      console.log('⚠️ testOscillatorPersistence: Oscillator disappeared from runtime!');
+      // Runtime module still exists
     }
   }, 2000);
-  
-  console.log('🎵 testOscillatorPersistence: Test started - watch console for persistence checks');
 };
 
 const testOscillatorWithoutYjs = () => {
-  console.log('🎵 testOscillatorWithoutYjs: Testing oscillator without Y.js synchronization...');
+  // Testing oscillator without Y.js synchronization
   
   // Clear everything first
   clearAll();
@@ -478,7 +402,6 @@ const testOscillatorWithoutYjs = () => {
   const project = useProjectStore();
   
   if (!project?.audioCtx) {
-    console.error('❌ No audio context available');
     return;
   }
   
@@ -513,43 +436,30 @@ const testOscillatorWithoutYjs = () => {
   // Start the oscillator
   osc.start();
   
-  console.log('🎵 testOscillatorWithoutYjs: Manual oscillator started, runtime size:', runtime.size);
-  
   // Test parameter changes
   setTimeout(() => {
-    console.log('🎵 testOscillatorWithoutYjs: Changing frequency to 880Hz...');
     manualRT.update({ freq: 880 });
   }, 1000);
   
   setTimeout(() => {
-    console.log('🎵 testOscillatorWithoutYjs: Changing to square wave...');
     manualRT.update({ wave: 'square' });
   }, 2000);
   
   // Check persistence every 500ms
   const checkInterval = setInterval(() => {
-    console.log('🔍 testOscillatorWithoutYjs: Runtime size:', runtime.size, 'Has manual_osc:', runtime.has('manual_osc'));
+    // Runtime size and manual_osc status
   }, 500);
   
   // Stop after 5 seconds
   setTimeout(() => {
     clearInterval(checkInterval);
     osc.stop();
-    console.log('🎵 testOscillatorWithoutYjs: Test complete');
   }, 5000);
-  
-  console.log('🎵 testOscillatorWithoutYjs: Should hear 440Hz tone for 5 seconds');
 };
 
 const testMinimalAudio = () => {
-  console.log('🎵 testMinimalAudio: Testing minimal audio setup...');
-  
-  // Don't clear everything - just start fresh
-  console.log('🎵 testMinimalAudio: Starting minimal test...');
-  
   // Create oscillator through the patch system
   const oscId = addModule('osc');
-  console.log('🎵 testMinimalAudio: Oscillator created with ID:', oscId);
   
   // Set parameters
   updateModuleParams(oscId, { freq: 440, wave: 'sine' });
@@ -560,30 +470,23 @@ const testMinimalAudio = () => {
   // Start audio
   startAudio();
   
-  console.log('🎵 testMinimalAudio: Should hear 440Hz tone now!');
-  
   // Monitor audio context state every 500ms
   const monitorInterval = setInterval(() => {
     const project = useProjectStore();
     if (project?.audioCtx) {
-      console.log('🔍 testMinimalAudio: Audio context state:', project.audioCtx.state);
-      console.log('🔍 testMinimalAudio: Audio context sample rate:', project.audioCtx.sampleRate);
+      console.log('Audio context state:', project.audioCtx.state);
     }
   }, 500);
   
   // Simple test - just check if it's working after 2 seconds
   setTimeout(() => {
     clearInterval(monitorInterval);
-    console.log('🎵 testMinimalAudio: Test complete - did you hear audio?');
   }, 2000);
 };
 
 const testAudioContextPersistence = () => {
-  console.log('🎵 testAudioContextPersistence: Testing if audio context stays active...');
-  
   const project = useProjectStore();
   if (!project?.audioCtx) {
-    console.error('❌ No audio context available');
     return;
   }
   
@@ -600,43 +503,33 @@ const testAudioContextPersistence = () => {
   
   // Start the oscillator
   osc.start();
-  
-  console.log('🎵 testAudioContextPersistence: Oscillator started - should hear 440Hz tone');
 
-  // 🎯 CRITICAL: Resume audio context if suspended
+  // Resume audio context if suspended
   if (project.audioCtx.state === 'suspended') {
-    console.log('⚠️ testAudioContextPersistence: Audio context suspended - resuming...');
     try {
       project.audioCtx.resume();
-      console.log('✅ testAudioContextPersistence: Audio context resumed');
     } catch (error) {
-      console.error('❌ testAudioContextPersistence: Failed to resume audio context:', error);
+      // Silent fail
     }
   }
   
-  // 🎯 CRITICAL: Keep-alive interval to prevent audio context suspension
+  // Keep-alive interval to prevent audio context suspension
   const keepAliveInterval = setInterval(() => {
     if (project.audioCtx.state === 'suspended') {
-      console.log('⚠️ testAudioContextPersistence: Audio context suspended - resuming...');
       try {
         project.audioCtx.resume();
-        console.log('✅ testAudioContextPersistence: Audio context resumed');
       } catch (error) {
-        console.log('⚠️ testAudioContextPersistence: Could not resume audio context');
+        // Silent fail for keep-alive
       }
     }
-    console.log('🔍 testAudioContextPersistence: Audio context state:', project.audioCtx.state);
-    console.log('🔍 testAudioContextPersistence: Oscillator state:', osc.constructor.name);
+    console.log('Audio context state:', project.audioCtx.state);
   }, 200);
   
   // Keep running for 5 seconds
   setTimeout(() => {
     clearInterval(keepAliveInterval);
     osc.stop();
-    console.log('🎵 testAudioContextPersistence: Test complete');
   }, 5000);
-  
-  console.log('🎵 testAudioContextPersistence: Should hear 440Hz tone for 5 seconds');
 };
 
 const recording = ref(false);
